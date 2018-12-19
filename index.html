@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		
+		<!-- Load CSS. -->
+		
+		<!-- Load JavaScript library. -->
+		<script src="https://code.jquery.com/jquery-2.2.3.min.js" integrity="sha256-a23g1Nt4dtEYOj7bR+vTu7+T8VP13humZFBJNIYoEJo=" crossorigin="anonymous"></script>
+		<script src="./js/bitcoinjs_4.0.2.js"></script>
+		<script src="./js/bip39_2.5.0.js"></script>
+		<script src="./js/index.js"></script>
+		
+		<!-- Load Bootstrap. -->
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap-theme.min.css" integrity="sha384-fLW2N01lMqjakBkx3l/M9EahuwpSfeNvV63J5ezn3uZzapT0u7EYsXMjQV+0En5r" crossorigin="anonymous">
+		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
+		
+		<title>ブロックチェーンエンジニア集中講座 Week 4 - ビットコインで支払える簡単なECサイトを作ってみよう</title>
+		
+	</head>
+	<body>
+		
+		<div class="container">
+			
+			<div class="row">
+				<div class="col-lg-12">
+					<h1 class="page-header">
+						Week4 - ビットコインで支払える簡単なECサイトを作ってみよう
+					</h1>
+				</div>
+			</div>
+			
+			<div class="row">
+				<h2>Step 0 - 拡張鍵ペアの生成</h2>
+				<div class="text-center">
+					<button class="btn btn-primary" onclick="generateKeys();">拡張鍵ペアの生成</button>
+				</div>
+				<div class="input-group">
+					<span class="input-group-addon">ニーモニック 1</span>
+					<input type="text" class="form-control" id="mnemonic1" placeholder="devote victory matrix whale impact edge story rain morning remain skull strike" disabled="disabled">
+				</div>
+				<div class="input-group">
+					<span class="input-group-addon">拡張公開鍵 1</span>
+					<input type="text" class="form-control" id="extpubkey1" placeholder="tpubD6NzVbkrYhZ4Y3eYE9P23eLeNbkaKgVTv88Wu47GWqLs7XuDPwCcJSkZtJnWtd6y1WXXrEZHrzdLPNYKSvdxnWmXtDB8bDinobZpdTrdh2R" disabled="disabled">
+				</div>
+				<div class="input-group">
+					<span class="input-group-addon">ニーモニック 2</span>
+					<input type="text" class="form-control" id="mnemonic2" placeholder="medal rebel arm bacon wheel video frequent cigar decade involve bargain release" disabled="disabled">
+				</div>
+				<div class="input-group">
+					<span class="input-group-addon">拡張公開鍵 2</span>
+					<input type="text" class="form-control" id="extpubkey2" placeholder="tpubD6NzVbkrYhZ4XPBc12DG2qTdM7pTEbQkCCZJ8fq564hnu8ZrQm7UUHDwxsE2xf9WLU8UcDqCumrMJsjn4nUEbGDD9wrviJ23sDspSrraPrV" disabled="disabled">
+				</div>
+				<div class="input-group">
+					<span class="input-group-addon">ニーモニック 3</span>
+					<input type="text" class="form-control" id="mnemonic3" placeholder="supreme cherry couch hint winter pizza crane mixed measure chronic divide tomato" disabled="disabled">
+				</div>
+				<div class="input-group">
+					<span class="input-group-addon">拡張公開鍵 3</span>
+					<input type="text" class="form-control" id="extpubkey3" placeholder="tpubD6NzVbkrYhZ4Wpp7CzLYUPzRsorRFz1fsTgiYkU2MqxZEPrgST81aF7xx2k2f8TruKikzrZenY3PJpu2GFGkcZPTSyC72LbvzQvkiATuqgN" disabled="disabled">
+				</div>
+			</div>
+			
+			<div class="row">
+				<h2>Step 1 - 支払先アドレスの生成</h2>
+				<div class="input-group">
+					<span class="input-group-addon">オーダー ID</span>
+					<input type="number" class="form-control" id="order-id" min="0" placeholder="0" value="0" onchange="generateAddress();">
+					<span class="input-group-btn">
+						<button class="btn btn-primary" type="button" onclick="generateAddress();">オーダーを作成する</button>
+					</span>
+				</div>
+				<div class="text-center" id="payment-qr">
+					<img src="./img/no-image.svg" width="500" height="500" alt="Payment Address QR code." id="qr-code">
+				</div>
+				<div class="input-group">
+					<span class="input-group-addon">支払先アドレス</span>
+					<input type="text" class="form-control" id="payment-address" placeholder="2NG9GHPdcVr9zonXsiVZhZrnkwMLhgyEsm5" disabled="disabled">
+				</div>
+			</div>
+			
+			<div class="row">
+				<h2>Step 2 - 入金確認</h2>
+				<div class="input-group">
+					<span class="input-group-addon">API エンドポイント URL</span>
+					<input type="text" class="form-control" id="balance-api" placeholder="https://chain.so/api/v2/get_address_received/BTCTEST/2MyRFFUtMpNn8KjWfdzWMJx9CB4CkwF42FW" disabled="disabled">
+				</div>
+				<div class="text-center">
+					<button class="btn btn-primary" onclick="checkReceived();">残高照会</button>
+				</div>
+				<pre id="address-balance">null</pre>
+			</div>
+			
+			<div class="row">
+				<h2>Step 3 - 売上回収トランザクションの作成</h2>
+				<div class="input-group">
+					<span class="input-group-addon">受取アドレス</span>
+					<input type="text" class="form-control" id="receive-address" placeholder="2Mv7GjhjLNX12StVcLZDrVRNzxwB9DwNpis">
+				</div>
+				<div class="input-group">
+					<span class="input-group-addon">ニーモニック 1</span>
+					<input type="text" class="form-control" id="sign-mnemonic1" placeholder="devote victory matrix whale impact edge story rain morning remain skull strike">
+				</div>
+				<div class="input-group">
+					<span class="input-group-addon">ニーモニック 2</span>
+					<input type="text" class="form-control" id="sign-mnemonic2" placeholder="supreme cherry couch hint winter pizza crane mixed measure chronic divide tomato">
+				</div>
+				<div class="text-center">
+					<button class="btn btn-primary" onclick="createWithdrawTx();">売上回収トランザクションを作成</button>
+				</div>
+				<pre style="white-space:pre-wrap" id="withdraw-tx">null</pre>
+			</div>
+			
+			<div class="row">
+				<h2>Step 4 - 売上回収トランザクションのブロードキャスト</h2>
+				<textarea id="broadcast-tx" style="width:100%;height:30ex;"></textarea>
+				<div class="text-center">
+					<button class="btn btn-primary" onclick="broadcastTx();">トランザクションをブロードキャスト</button>
+				</div>
+				<pre id="tx-broadcasted">null</pre>
+			</div>
+			
+			<hr>
+			
+			<footer>
+				<p>Copyright &copy; Fressets, Inc. and HashHub, Inc., 2018. All rights reserved.</p>
+				<p>Originally written by <a href="https://twitter.com/visvirial">@visvirial</a>.</p>
+			</footer>
+			
+		</div>
+		
+	</body>
+</html>
+
