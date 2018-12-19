@@ -6,8 +6,8 @@
 主要なファイル
 --------------
 
-- [index.html]() - フロントエンドの HTML ファイル
-- [js/index.js]() - JavaScript の本体コード
-- [js/bitcoinjs_4.0.2.js]() - BitcoinJS (JavaScript による Bitcoin ライブラリ)
-- [js/bip39_2.5.0.js]() - BIP 39 を取り扱うライブラリ (BitcoinJS の一部)
+- [index.html](index.html) - フロントエンドの HTML ファイル
+- [js/index.js](js/index.js) - JavaScript の本体コード
+- [js/bitcoinjs_4.0.2.js](js/bitcoinjs_4.0.2.js) - BitcoinJS (JavaScript による Bitcoin ライブラリ)
+- [js/bip39_2.5.0.js](js/bip39_2.5.0.js) - BIP 39 を取り扱うライブラリ (BitcoinJS の一部)
 
